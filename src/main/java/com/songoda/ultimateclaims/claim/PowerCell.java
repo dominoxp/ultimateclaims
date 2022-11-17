@@ -1,5 +1,9 @@
 package com.songoda.ultimateclaims.claim;
 
+import static com.songoda.ultimateclaims.claim.CostEquation.LINEAR;
+import static com.songoda.ultimateclaims.settings.Settings.COST_EQUATION;
+import static com.songoda.ultimateclaims.settings.Settings.ECONOMY_VALUE;
+
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.HologramManager;
@@ -271,7 +275,7 @@ public class PowerCell {
     }
 
     public double getEconomyValue() {
-        double value = Settings.ECONOMY_VALUE.getDouble();
+        double value = ECONOMY_VALUE.getDouble();
 
         switch (getCostEquation()) {
             case DEFAULT:
@@ -284,13 +288,13 @@ public class PowerCell {
     }
 
     private CostEquation getCostEquation() {
-        if (Settings.COST_EQUATION.getString().startsWith("LINEAR")) return CostEquation.LINEAR;
-        else return CostEquation.valueOf(Settings.COST_EQUATION.getString());
+        if (COST_EQUATION.getString().startsWith("LINEAR")) return LINEAR;
+        else return CostEquation.valueOf(COST_EQUATION.getString());
     }
 
     private double getLinearValue() {
-        if (getCostEquation() != CostEquation.LINEAR) return 1.0d;
-        String[] equationSplit = Settings.COST_EQUATION.getString().split(" ");
+        if (getCostEquation() != LINEAR) return 1.0d;
+        String[] equationSplit = COST_EQUATION.getString().split(" ");
         return Double.parseDouble(equationSplit[1]);
     }
 

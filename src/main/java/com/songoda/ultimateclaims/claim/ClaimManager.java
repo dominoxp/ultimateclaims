@@ -1,5 +1,6 @@
 package com.songoda.ultimateclaims.claim;
 
+import javax.annotation.Nullable;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -45,6 +46,7 @@ public class ClaimManager {
         return getClaim(owner.getUniqueId());
     }
 
+    @Nullable
     public Claim getClaim(Chunk chunk) {
         return this.registeredClaims.values().stream()
                 .filter(claim -> claim.containsChunk(chunk)).findFirst().orElse(null);

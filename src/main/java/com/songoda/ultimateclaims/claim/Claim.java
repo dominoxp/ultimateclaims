@@ -440,6 +440,20 @@ public class Claim {
             return;
         }
 
+        if(reason == ClaimDeleteReason.POWERCELL_TIMEOUT && Settings.LOCK_INSTEAD_OF_DELETE.getBoolean()){
+            //Prevent claim deletion
+            if(!isLocked()){
+                setLocked(true);
+                if(!getName().startsWith("LOCKED-")){
+                    setName("LOCKED-" + getName());
+                }
+
+                Bukkit.getConsoleSender().sendMessage("Claim of " + owner.getName() + " | " + owner.getUniqueId().toString() + " was locked because of powercell timeout!");
+            }
+
+            return;
+        }
+
         this.claimedRegions.clear();
 
         if (UltimateClaims.getInstance().getDynmapManager() != null)

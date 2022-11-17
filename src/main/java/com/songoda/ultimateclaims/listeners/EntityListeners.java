@@ -1,5 +1,7 @@
 package com.songoda.ultimateclaims.listeners;
 
+import static com.songoda.ultimateclaims.listeners.DominoHelper.isModeratedWorld;
+
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.ultimateclaims.UltimateClaims;
 import com.songoda.ultimateclaims.claim.Claim;
@@ -167,6 +169,10 @@ public class EntityListeners implements Listener {
             if (claimManager.getClaim(from) != claim) {
                 event.setCancelled(true);
             }
+
+            if(claim == null && isModeratedWorld(to.getWorld().getName())){
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -175,9 +181,9 @@ public class EntityListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
         Chunk chunk = event.getEntity().getLocation().getChunk();
         Claim claim = claimManager.getClaim(chunk);
+        Entity source = event.getDamager();
 
         if (claim != null) {
-            Entity source = event.getDamager();
             if (source instanceof Projectile) {
                 ProjectileSource s = ((Projectile) source).getShooter();
                 if (s instanceof Player) {
@@ -199,6 +205,20 @@ public class EntityListeners implements Listener {
                 }
             }
         }
+
+        if (source instanceof Player && isModeratedWorld(event.getDamager().getWorld().getName())) {
+            Player player = (Player)source;
+
+            if(event.getEntity() instanceof Player){
+                if(!player.hasPermission("ultimateclaims.world_protection.pvp")){
+                    event.setCancelled(true);
+                }
+            }else {
+                if(!player.hasPermission("ultimateclaims.world_protection.mobkill")){
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -211,13 +231,19 @@ public class EntityListeners implements Listener {
             entity = (Entity) ((Projectile) entity).getShooter();
         }
 
+        boolean moderatedWorld = isModeratedWorld(event.getEntity().getWorld().getName());
+
         // Does this concern us?
         for (Block block : new ArrayList<>(event.blockList())) {
-            if (!claimManager.hasClaim(block.getChunk()))
+            if (!claimManager.hasClaim(block.getChunk()) && !moderatedWorld)
                 continue; // nope - you're not important
 
+            PowerCell powerCell = null;
             Claim claim = claimManager.getClaim(block.getChunk());
-            PowerCell powerCell = claim.getPowerCell();
+            if(claim != null){
+                powerCell = claim.getPowerCell();
+            }
+            boolean blockUnclaimed = (claim == null && moderatedWorld) || powerCell == null;
 
             // Pay special attention to mobs
             switch (entity.getType()) {
@@ -226,13 +252,13 @@ public class EntityListeners implements Listener {
                 case FIREBALL:
                 case WITHER:
                     // For explosions caused by mobs, check if allowed
-                    if (!claim.getClaimSettings().isEnabled(ClaimSetting.MOB_GRIEFING)
+                    if (blockUnclaimed || !claim.getClaimSettings().isEnabled(ClaimSetting.MOB_GRIEFING)
                             || (powerCell.hasLocation() && powerCell.getLocation().equals(block.getLocation()))) {
                         event.blockList().remove(block);
                     }
                     break;
                 case PRIMED_TNT:
-                    if (!claim.getClaimSettings().isEnabled(ClaimSetting.TNT)
+                    if (blockUnclaimed || !claim.getClaimSettings().isEnabled(ClaimSetting.TNT)
                             || (powerCell.hasLocation() && powerCell.getLocation().equals(block.getLocation()))) {
                         event.blockList().remove(block);
                     }

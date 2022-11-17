@@ -67,29 +67,51 @@ public class Settings {
             "The maximum amount of chunks a claim can have.");
 
     public static final ConfigSetting MAX_REGIONS = new ConfigSetting(config, "Main.Max Regions", 2,
-            "The maximum amount of regions a claim can have.");
+        "The maximum amount of regions a claim can have.");
 
-    public static final ConfigSetting MAX_MEMBERS = new ConfigSetting(config, "Main.Max Members", 10,
-            "The maximum amount of members a claim can have.");
+    public static final ConfigSetting MAX_MEMBERS = new ConfigSetting(config, "Main.Max Members",
+        10,
+        "The maximum amount of members a claim can have.");
 
-    public static final ConfigSetting DISABLED_WORLDS = new ConfigSetting(config, "Main.Disabled Worlds",
-            Arrays.asList("disabled_world"), "The worlds that claims are disabled in.");
+    public static final ConfigSetting DISABLED_WORLDS = new ConfigSetting(config,
+        "Main.Disabled Worlds",
+        Collections.singletonList("disabled_world"), "The worlds that claims are disabled in.");
 
-    public static final ConfigSetting COST_EQUATION = new ConfigSetting(config, "Main.Cost Equation",
-            "DEFAULT", "The equation used for calculation the cost of a claim.",
-            "NONE - The claim size does not affect the cost.",
-            "DEFAULT - Multiplies the cost by the claim size.",
-            "LINEAR [value] - Multiplies the cost by the claim size multiplied by the value.");
+    public static final ConfigSetting LOCK_INSTEAD_OF_DELETE = new ConfigSetting(config,
+        "Main.Lock Instead Delete", false,
+        "Should claims rather be locked on too low powercell charge instead of being deleted? - Deletion of player and admin still works.");
 
-    public static final ConfigSetting PURGE_AUDIT_LOG_AFTER = new ConfigSetting(config, "Main.Purge Audit Log After", 15,
-            "After how many days should the audit log purge data.");
+    public static final ConfigSetting COST_EQUATION = new ConfigSetting(config,
+        "Main.Cost Equation",
+        "DEFAULT", "The equation used for calculation the cost of a claim.",
+        "NONE - The claim size does not affect the cost.",
+        "DEFAULT - Multiplies the cost by the claim size.",
+        "LINEAR [value] - Multiplies the cost by the claim size multiplied by the value.");
 
-    public static final ConfigSetting ENABLE_FUEL = new ConfigSetting(config, "Main.Powercells Require Fuel", true,
-            "Should power cells not require fuel?");
+    public static final ConfigSetting COST_CLAIM_EQUATION = new ConfigSetting(config,
+        "Main.Cost Claim Equation",
+        "DEFAULT", "The equation used for calculation the cost of a claim.",
+        "NONE - The claim size does not affect the cost.",
+        "DEFAULT - Multiplies the cost by the claim size.",
+        "LINEAR [value] - Multiplies the cost by the claim size multiplied by the value.");
 
-    public static final ConfigSetting ENABLE_HOPPERS = new ConfigSetting(config, "Main.Enable Hoppers", true,
-            "Should hoppers be able to put fuel into a power cell?",
-            "Please note that this feature is experimental.");
+    public static final ConfigSetting SHOW_POWERCELL_POWER = new ConfigSetting(config, "Main.Show Power", false,
+        "Should the power be shown instead of time");
+
+
+
+    public static final ConfigSetting PURGE_AUDIT_LOG_AFTER = new ConfigSetting(config,
+        "Main.Purge Audit Log After", 15,
+        "After how many days should the audit log purge data.");
+
+    public static final ConfigSetting ENABLE_FUEL = new ConfigSetting(config,
+        "Main.Powercells Require Fuel", true,
+        "Should power cells not require fuel?");
+
+    public static final ConfigSetting ENABLE_HOPPERS = new ConfigSetting(config,
+        "Main.Enable Hoppers", true,
+        "Should hoppers be able to put fuel into a power cell?",
+        "Please note that this feature is experimental.");
 
     public static final ConfigSetting ENABLE_AUDIT_LOG = new ConfigSetting(config, "Main.Enable Audit Log", true,
             "Should we enable the audit log?",

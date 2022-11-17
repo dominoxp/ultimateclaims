@@ -22,6 +22,7 @@ permissions:
       ultimateclaims.toggle.pvp: true
       ultimateclaims.toggle.mobgriefing: true
       ultimateclaims.toggle.leafdecay: true
+      ultimateclaims.toggle.fly: true
       ultimateclaims.accept: true
       ultimateclaims.ban: true
       ultimateclaims.claim: true
@@ -35,6 +36,12 @@ permissions:
       ultimateclaims.sethome: true
       ultimateclaims.unban: true
       ultimateclaims.unclaim: true
+      ultimateclaims.fly: true
+      ultimateclaims.world_protection.break: true
+      ultimateclaims.world_protection.place: true
+      ultimateclaims.world_protection.pvp: true
+      ultimateclaims.world_protection.mobkill: true
+
   ultimateclaims.bypass:
     description: Allows a player or admin to bypass claim restrictions.
     default: op
@@ -52,6 +59,12 @@ permissions:
     default: op
   ultimateclaims.toggle.leafdecay:
     description: Allows the claim owner to toggle leaf decay.
+    default: op
+  ultimateclaims.toggle.fly:
+    description: Allows the claim owner to toggle fly.
+    default: op
+  ultimateclaims.fly:
+    description: Allows the user to fly in a enabled region.
     default: op
   ultimateclaims.accept:
     description: Accept the latest claim invitation.
@@ -91,4 +104,16 @@ permissions:
     default: op
   ultimateclaims.unclaim:
     description: Unclaim land from your claim.
+    default: op
+  ultimateclaims.world_protection.break:
+    description: The player can break blocks in managed worlds in unclaimed chunks.
+    default: op
+  ultimateclaims.world_protection.place:
+    description: The player can place blocks in managed worlds in unclaimed chunks.
+    default: op
+  ultimateclaims.world_protection.pvp:
+    description: The player can pvp in managed worlds in unclaimed chunks.
+    default: op
+  ultimateclaims.world_protection.mobkill:
+    description: The place can kill mobs in unclaimed chunks.
     default: op

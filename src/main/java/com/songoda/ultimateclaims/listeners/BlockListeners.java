@@ -1,5 +1,7 @@
 package com.songoda.ultimateclaims.listeners;
 
+import static com.songoda.ultimateclaims.listeners.DominoHelper.isModeratedWorld;
+
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.ultimateclaims.UltimateClaims;
@@ -41,7 +43,12 @@ public class BlockListeners implements Listener {
 
         Chunk chunk = block.getChunk();
 
-        if (!claimManager.hasClaim(chunk)) return;
+        if (!claimManager.hasClaim(chunk)) {
+            if (isModeratedWorld(event.getBlock()) && !event.getPlayer().hasPermission("ultimateclaims.world_protection.place")) {
+                event.setCancelled(true);
+            }
+            return;
+        }
 
         Claim claim = claimManager.getClaim(chunk);
 
@@ -73,13 +80,20 @@ public class BlockListeners implements Listener {
 
         Chunk chunk = event.getBlock().getChunk();
 
-        if (!claimManager.hasClaim(chunk)) return;
+        // Prevent outside claim modification to world, if this world is protected
+        if (!claimManager.hasClaim(chunk)) {
+            if (isModeratedWorld(event.getBlock()) && !event.getPlayer().hasPermission("ultimateclaims.world_protection.break")) {
+                event.setCancelled(true);
+            }
+            return;
+        }
 
         Claim claim = claimManager.getClaim(chunk);
         PowerCell powerCell = claim.getPowerCell();
 
         if (!claim.playerHasPerms(event.getPlayer(), ClaimPerm.BREAK)) {
-            plugin.getLocale().getMessage("event.general.nopermission").sendPrefixedMessage(event.getPlayer());
+            plugin.getLocale().getMessage("event.general.nopermission")
+                .sendPrefixedMessage(event.getPlayer());
             event.setCancelled(true);
             return;
         }
@@ -100,7 +114,7 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD)) {
+        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD))) {
             event.setCancelled(true);
         }
     }
@@ -110,7 +124,7 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD)) {
+        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD))) {
             if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11)) {
                 event.getIgnitingBlock().setType(CompatibleMaterial.AIR.getMaterial());
             } else {
@@ -130,7 +144,7 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.LEAF_DECAY)) {
+        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.LEAF_DECAY))) {
             event.setCancelled(true);
         }
     }
@@ -195,7 +209,7 @@ public class BlockListeners implements Listener {
             if (!fromClaim.equals(toClaim)) {
                 event.setCancelled(true);
             }
-        } else if (toClaim != null) {
+        } else if (toClaim != null || fromClaim != null) {
             // moving from unclaimed to a claim
             event.setCancelled(true);
         }
@@ -230,7 +244,7 @@ public class BlockListeners implements Listener {
                         event.setCancelled(true);
                         return;
                     }
-                } else if (toClaim != null) {
+                } else if (toClaim != null || fromClaim != null) {
                     // trying to alter another claim
                     event.setCancelled(true);
                     return;
@@ -244,7 +258,7 @@ public class BlockListeners implements Listener {
                         event.setCancelled(true);
                         return;
                     }
-                } else if (toClaim != null) {
+                } else if (toClaim != null || fromClaim != null) {
                     // trying to alter another claim
                     event.setCancelled(true);
                     return;
