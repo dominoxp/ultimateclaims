@@ -1,6 +1,7 @@
 package com.songoda.ultimateclaims.dynmap;
 
 import static com.songoda.core.utils.NumberUtils.formatWithSuffix;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import com.songoda.core.utils.TimeUtils;
 import com.songoda.ultimateclaims.UltimateClaims;
@@ -9,6 +10,7 @@ import com.songoda.ultimateclaims.claim.region.ClaimCorners;
 import com.songoda.ultimateclaims.claim.region.RegionCorners;
 import com.songoda.ultimateclaims.settings.Settings;
 import java.util.Objects;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.AreaMarker;
@@ -72,14 +74,14 @@ public class DynmapManager {
 
         String markerDesc = claim.getOwner() != null ?
                 Settings.DYNMAP_BUBBLE.getString()
-                        .replace("${Claim}", claim.getName())
-                        .replace("${Owner}", Objects.toString(claim.getOwner().getName(), "<null>"))
+                        .replace("${Claim}", escapeHtml(claim.getName()))
+                        .replace("${Owner}", escapeHtml(Objects.toString(claim.getOwner().getName(), "<null>")))
                         .replace("${OwnerUUID}", Objects.toString(claim.getOwner().getUniqueId().toString(), "<nullId>"))
                         .replace("${MemberCount}", claim.getMembers().size() + "")
                         .replace("${ChunkSize}", claim.getClaimSize() + "")
                         .replace("${PowerLeft}", powerLeft) :
                 Settings.DYNMAP_BUBBLE_UNCLAIMED.getString()
-                        .replace("${Claim}", claim.getName())
+                        .replace("${Claim}", escapeHtml(claim.getName()))
                         .replace("${MemberCount}", claim.getMembers().size() + "")
                         .replace("${PowerLeft}", powerLeft);
 
