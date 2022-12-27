@@ -12,7 +12,7 @@ general:
     defaultname: '%name%''s claim'
     powercell:
       low: '&cLow Power!'
-      message: '&6%time% &7Remaining.'
+      message: '&6%power% &7Power.'
     dissolve: '&7Your claim &6%claim% &7has been dissolved.'
   notanumber: '&cThe entry &4%value% &cis not a number'
   notenoughfunds: '&cYou do not have enough funds.'
@@ -68,10 +68,11 @@ command:
     maxregions: '&cYou cannot create anymore regions...'
     nocell: '&cYou need to create a powercell before you can claim more land...'
     noregion: '&cYou cannot claim a protected region!'
-    info: '&cYou have &4%time% &cto create a powercell before your claim is dissolved... To create one you need to construct the recipe which you can find at &6/c recipe&7. Form it in the center of a single chest within your claim.'
+    info: '&cYou have &4%power% &cto create a powercell before your claim is dissolved... To create one you need to construct the recipe which you can find at &6/c recipe&7. Form it in the center of a single chest within your claim.'
     nottouching: '&cYou can only claim chunks that are touching each other.'
     toomany: '&cYou can only claim &4%amount% &cchunks.'
     disabledworld: '&cYou cannot do that in this world.'
+    notenoughpower: '&cYou do not have enough power to claim more chunks, you need %remaining% Power (current: %current%, needed: %total%)'
   unclaim:
     success: '&7You unclaimed this chunk.'
     powercell: '&cYou cannot unclaim the chunk holding your powercell... Please move it first.'
@@ -107,8 +108,8 @@ interface:
   powercell:
     economytitle: '&7Economy stored: &6%time%&7.'
     economylore: '&7Left Click to deposit funds.|&7Right Click to withdraw funds.|&7Stored Funds: &6%balance%'
-    valuablestitle: '&7Items stored: &6%time%&7.'
-    totaltitle: '&7Total Power: &6%time%&7.'
+    valuablestitle: '&7Items stored: &6%power%&7.'
+    totaltitle: '&7Total Power: &6%power%&7.'
     addfunds: '&7Enter an amount to deposit.'
     takefunds: '&7Enter an amount to withdraw.'
     infotitle: '&5&lInfo'

@@ -6,8 +6,6 @@ import com.songoda.core.configuration.ConfigSetting;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.HologramManager;
 import com.songoda.ultimateclaims.UltimateClaims;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -88,17 +86,14 @@ public class Settings {
         "DEFAULT - Multiplies the cost by the claim size.",
         "LINEAR [value] - Multiplies the cost by the claim size multiplied by the value.");
 
-    public static final ConfigSetting COST_CLAIM_EQUATION = new ConfigSetting(config,
-        "Main.Cost Claim Equation",
-        "DEFAULT", "The equation used for calculation the cost of a claim.",
-        "NONE - The claim size does not affect the cost.",
-        "DEFAULT - Multiplies the cost by the claim size.",
-        "LINEAR [value] - Multiplies the cost by the claim size multiplied by the value.");
+    public static final ConfigSetting COST_CLAIM_LINEAR_VALUE = new ConfigSetting(config,
+        "Main.Cost Claim Linear", 1000,
+        "Multiplies the cost by the claim size multiplied by the value.");
 
-    public static final ConfigSetting SHOW_POWERCELL_POWER = new ConfigSetting(config, "Main.Show Power", false,
-        "Should the power be shown instead of time");
-
-
+    public static final ConfigSetting UNCLAIM_REFUND_PERCENTAGE = new ConfigSetting(
+        config,
+        "Main.Refund Percentage", 50,
+        "Refund percentage for chunk unclaiming converted to power");
 
     public static final ConfigSetting PURGE_AUDIT_LOG_AFTER = new ConfigSetting(config,
         "Main.Purge Audit Log After", 15,

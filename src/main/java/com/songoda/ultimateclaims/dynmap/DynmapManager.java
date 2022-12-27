@@ -1,11 +1,14 @@
 package com.songoda.ultimateclaims.dynmap;
 
+import static com.songoda.core.utils.NumberUtils.formatWithSuffix;
+
 import com.songoda.core.utils.TimeUtils;
 import com.songoda.ultimateclaims.UltimateClaims;
 import com.songoda.ultimateclaims.claim.Claim;
 import com.songoda.ultimateclaims.claim.region.ClaimCorners;
 import com.songoda.ultimateclaims.claim.region.RegionCorners;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.dynmap.DynmapAPI;
 import org.dynmap.markers.AreaMarker;
@@ -65,19 +68,15 @@ public class DynmapManager {
     public void refreshDescription(Claim claim) {
         if (markerSet == null) return;
 
-        String powerLeft;
-        if (claim.getPowerCell().getTotalPower() > 1) {
-            powerLeft = TimeUtils.makeReadable(claim.getPowerCell().getTotalPower() * 60 * 1000);
-        } else {
-            powerLeft = TimeUtils.makeReadable((claim.getPowerCell().getTotalPower() + Settings.MINIMUM_POWER.getInt()) * 60 * 1000);
-        }
+        String powerLeft = formatWithSuffix(claim.getPowerCell().getTotalPower());
 
         String markerDesc = claim.getOwner() != null ?
                 Settings.DYNMAP_BUBBLE.getString()
                         .replace("${Claim}", claim.getName())
-                        .replace("${Owner}", claim.getOwner().getName())
-                        .replace("${OwnerUUID}", claim.getOwner().getUniqueId().toString())
+                        .replace("${Owner}", Objects.toString(claim.getOwner().getName(), "<null>"))
+                        .replace("${OwnerUUID}", Objects.toString(claim.getOwner().getUniqueId().toString(), "<nullId>"))
                         .replace("${MemberCount}", claim.getMembers().size() + "")
+                        .replace("${ChunkSize}", claim.getClaimSize() + "")
                         .replace("${PowerLeft}", powerLeft) :
                 Settings.DYNMAP_BUBBLE_UNCLAIMED.getString()
                         .replace("${Claim}", claim.getName())

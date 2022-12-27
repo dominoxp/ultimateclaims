@@ -31,6 +31,15 @@ public class AnimateTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        try {
+            runInternalTask();
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private void runInternalTask(){
         for (Claim claim : new ArrayList<>(plugin.getClaimManager().getRegisteredClaims())) {
             PowerCell powerCell = claim.getPowerCell();
 

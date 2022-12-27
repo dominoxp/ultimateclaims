@@ -1,5 +1,6 @@
 package com.songoda.ultimateclaims.claim;
 
+import static com.songoda.core.utils.NumberUtils.formatWithSuffix;
 import static com.songoda.ultimateclaims.claim.CostEquation.LINEAR;
 import static com.songoda.ultimateclaims.settings.Settings.COST_EQUATION;
 import static com.songoda.ultimateclaims.settings.Settings.ECONOMY_VALUE;
@@ -7,20 +8,19 @@ import static com.songoda.ultimateclaims.settings.Settings.ECONOMY_VALUE;
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.HologramManager;
-import com.songoda.core.utils.TimeUtils;
+import com.songoda.core.utils.NumberUtils;
 import com.songoda.ultimateclaims.UltimateClaims;
 import com.songoda.ultimateclaims.gui.PowerCellGui;
 import com.songoda.ultimateclaims.settings.Settings;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.UUID;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class PowerCell {
 
@@ -54,44 +54,30 @@ public class PowerCell {
             loaded = location.getWorld().isChunkLoaded(x, z);
         }
 
-        if (this.currentPower <= 0 && location != null) {
+        if (location != null) {
             updateItemsFromGui();
 
+            int oldPower = currentPower;
             ListIterator<ItemStack> iterator = items.listIterator();
             while (iterator.hasNext()) {
                 ItemStack itemStack = iterator.next();
-                double itemValue = plugin.getItemManager().getItemValue(itemStack);
+                double itemValue = plugin.getItemManager().getItemValue(itemStack) * itemStack.getAmount();
 
-                if (itemValue < 1) { // Remove items based on number of claimed chunks
-                    int itemsToRemove = (int) Math.ceil(1 / itemValue);
-                    itemStack.setAmount(itemStack.getAmount() - itemsToRemove);
-                    this.currentPower += itemValue * itemsToRemove;
-                } else { // Remove only one item
-                    itemStack.setAmount(itemStack.getAmount() - 1);
-                    this.currentPower += itemValue;
-                }
-
-                if (itemStack.getAmount() <= 1)
-                    iterator.remove();
+                iterator.remove();
+                this.currentPower += itemValue;
 
                 if (loaded && Settings.POWERCELL_HOLOGRAMS.getBoolean())
                     updateHologram();
-                return this.currentPower;
             }
 
-            double economyValue = getEconomyValue();
-            if (economyBalance >= economyValue) {
-                this.economyBalance -= economyValue;
-                this.currentPower += 1;
-                if (loaded && Settings.POWERCELL_HOLOGRAMS.getBoolean())
-                    updateHologram();
-                return this.currentPower;
+            //Update database if value has changed
+            if(currentPower != oldPower){
+                plugin.getDataManager().updateClaim(claim);
             }
+            return this.currentPower;
         }
-        if (loaded && Settings.POWERCELL_HOLOGRAMS.getBoolean())
-            updateHologram();
         stackItems();
-        return this.currentPower--;
+        return this.currentPower;
     }
 
     public void rejectUnusable() {
@@ -167,15 +153,9 @@ public class PowerCell {
     }
 
     public String getTimeRemaining() {
-        if (getTotalPower() > 1) {
-            return plugin.getLocale().getMessage("general.claim.powercell")
-                    .processPlaceholder("time", TimeUtils.makeReadable(getTotalPower() * 60 * 1000))
-                    .getMessage();
-        } else {
-            return plugin.getLocale().getMessage("general.claim.powercell.low")
-                    .processPlaceholder("time", TimeUtils.makeReadable((getTotalPower() + Settings.MINIMUM_POWER.getInt()) * 60 * 1000))
-                    .getMessage();
-        }
+        return plugin.getLocale().getMessage("general.claim.powercell")
+            .processPlaceholder("power", formatWithSuffix(getTotalPower()))
+            .getMessage();
     }
 
     public void removeHologram() {
@@ -190,6 +170,7 @@ public class PowerCell {
 
     public void setCurrentPower(int currentPower) {
         this.currentPower = currentPower;
+        tick();
 
         if (this.plugin.getDynmapManager() != null) {
             this.plugin.getDynmapManager().refreshDescription(this.claim);
@@ -369,5 +350,13 @@ public class PowerCell {
 
     public String getHologramId() {
         return "UltimateClaims-" + uniqueId;
+    }
+
+    public void removePower(int power) {
+        setCurrentPower(currentPower - power);
+    }
+
+    public void addCurrentPower(int power) {
+        setCurrentPower(currentPower + power);
     }
 }

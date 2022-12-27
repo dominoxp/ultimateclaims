@@ -140,10 +140,7 @@ public class ItemManager {
 
     public int getItemValue(ItemStack itemStack) {
         Optional<PowerCellItem> optional = items.stream().filter(powerCellItem -> powerCellItem.isSimilar(itemStack)).findAny();
-        if (optional.isPresent()) {
-            return optional.get().getValue();
-        }
+        return optional.map(PowerCellItem::getValue).orElse(0);
 
-        return 0;
     }
 }

@@ -1,8 +1,10 @@
 package com.songoda.ultimateclaims.commands;
 
+import static com.songoda.core.utils.NumberUtils.formatWithSuffix;
+import static com.songoda.ultimateclaims.settings.Settings.STARTING_POWER;
+
 import com.songoda.core.commands.AbstractCommand;
 import com.songoda.core.hooks.WorldGuardHook;
-import com.songoda.core.utils.TimeUtils;
 import com.songoda.ultimateclaims.UltimateClaims;
 import com.songoda.ultimateclaims.api.events.ClaimChunkClaimEvent;
 import com.songoda.ultimateclaims.api.events.ClaimCreateEvent;
@@ -13,13 +15,12 @@ import com.songoda.ultimateclaims.claim.region.ClaimedRegion;
 import com.songoda.ultimateclaims.member.ClaimMember;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CommandClaim extends AbstractCommand {
 
@@ -32,6 +33,16 @@ public class CommandClaim extends AbstractCommand {
 
     @Override
     protected ReturnType runCommand(CommandSender sender, String... args) {
+        try {
+            return runCommandDebug(sender, args);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    protected ReturnType runCommandDebug(CommandSender sender, String... args) {
         Player player = (Player) sender;
 
         if (Settings.DISABLED_WORLDS.getStringList().contains(player.getWorld().getName())) {
@@ -73,8 +84,19 @@ public class CommandClaim extends AbstractCommand {
 
             if (claim.getClaimSize() >= maxClaimable) {
                 plugin.getLocale().getMessage("command.claim.toomany")
-                        .processPlaceholder("amount", maxClaimable)
-                        .sendPrefixedMessage(player);
+                    .processPlaceholder("amount", maxClaimable)
+                    .sendPrefixedMessage(player);
+                return ReturnType.FAILURE;
+            }
+
+            int claimCost = claim.getNextClaimCost();
+            if (claim.getPowerCell().getTotalPower() < claimCost) {
+                plugin.getLocale().getMessage("command.claim.notenoughpower")
+                    .processPlaceholder("current", claim.getPowerCell().getTotalPower())
+                    .processPlaceholder("total", claimCost)
+                    .processPlaceholder("remaining",
+                        Math.abs(claimCost - claim.getPowerCell().getTotalPower()))
+                    .sendPrefixedMessage(player);
                 return ReturnType.FAILURE;
             }
 
@@ -87,20 +109,24 @@ public class CommandClaim extends AbstractCommand {
             boolean newRegion = claim.isNewRegion(chunk);
 
             if (newRegion && claim.getClaimedRegions().size() >= Settings.MAX_REGIONS.getInt()) {
-                plugin.getLocale().getMessage("command.claim.maxregions").sendPrefixedMessage(sender);
+                plugin.getLocale().getMessage("command.claim.maxregions")
+                    .sendPrefixedMessage(sender);
                 return ReturnType.FAILURE;
             }
 
+            claim.getPowerCell().removePower(claimCost);
             claim.addClaimedChunk(chunk, player);
             ClaimedChunk claimedChunk = claim.getClaimedChunk(chunk);
+            plugin.getDataManager().updateClaim(claim);
             plugin.getDataManager().createClaimedChunk(claimedChunk);
 
             if (newRegion) {
                 plugin.getDataManager().createClaimedRegion(claimedChunk.getRegion());
             }
 
-            if (plugin.getDynmapManager() != null)
+            if (plugin.getDynmapManager() != null) {
                 plugin.getDynmapManager().refresh();
+            }
 
             if (Settings.POWERCELL_HOLOGRAMS.getBoolean())
                 claim.getPowerCell().updateHologram();
@@ -123,7 +149,7 @@ public class CommandClaim extends AbstractCommand {
             plugin.getDataManager().createClaim(claim);
 
             plugin.getLocale().getMessage("command.claim.info")
-                    .processPlaceholder("time", TimeUtils.makeReadable(Settings.STARTING_POWER.getLong() * 60 * 1000))
+                .processPlaceholder("power", formatWithSuffix(STARTING_POWER.getLong()))
                     .sendPrefixedMessage(sender);
         }
 

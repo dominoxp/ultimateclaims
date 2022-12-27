@@ -15,6 +15,7 @@ import com.songoda.ultimateclaims.member.ClaimPermissions;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.PluginSettings;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -31,11 +32,16 @@ import java.util.function.Consumer;
 
 public class DataManager extends DataManagerAbstract {
 
+    private final Logger logger;
+
     public DataManager(DatabaseConnector databaseConnector, Plugin plugin) {
         super(databaseConnector, plugin);
+        logger = Bukkit.getLogger();
     }
 
     public void createOrUpdatePluginSettings(PluginSettings pluginSettings) {
+        logger.info("Updating Plugin Settings...");
+
         this.runAsync(() -> {
             try (Connection connection = this.databaseConnector.getConnection()){
                 // first check to see if there is a data row for plugin settings
@@ -84,6 +90,8 @@ public class DataManager extends DataManagerAbstract {
     }
 
     public void createClaim(Claim claim) {
+
+        logger.info("Creating Claim '" + claim.getName() + "'");
         this.runAsync(() -> {
             try (Connection connection = this.databaseConnector.getConnection()){
                 String createClaim = "INSERT INTO " + this.getTablePrefix() + "claim (name, power, eco_bal, locked) VALUES (?, ?, ?, ?)";
@@ -163,11 +171,14 @@ public class DataManager extends DataManagerAbstract {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+            }finally {
+                logger.info("Claim '" + claim.getName() + "' created");
             }
         });
     }
 
     public void updateClaim(Claim claim) {
+        logger.info("Updating Claim '" + claim.getName() + "'");
         this.runAsync(() -> {
             try (Connection connection = this.databaseConnector.getConnection()){
                 String updateClaim = "UPDATE " + this.getTablePrefix() + "claim SET name = ?, power = ?, eco_bal = ?, locked = ?, home_world = ?, home_x = ?, home_y = ?, home_z = ?, home_pitch = ?, home_yaw = ?, powercell_world = ?, powercell_x = ?, powercell_y = ?, powercell_z = ?, powercell_inventory = ? WHERE id = ?";
@@ -213,11 +224,14 @@ public class DataManager extends DataManagerAbstract {
                 statement.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
+            } finally {
+                logger.info("Claim '" + claim.getName() + "' updated");
             }
         });
     }
 
     public void bulkUpdateClaims(Collection<Claim> claims) {
+        logger.info("Bulk-Update " +claims.size() + " Claims");
         try (Connection connection = this.databaseConnector.getConnection()){
             String updateClaim = "UPDATE " + this.getTablePrefix() + "claim SET name = ?, power = ?, eco_bal = ?, locked = ?, home_world = ?, home_x = ?, home_y = ?, home_z = ?, home_pitch = ?, home_yaw = ?, powercell_world = ?, powercell_x = ?, powercell_y = ?, powercell_z = ?, powercell_inventory = ? WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(updateClaim)) {
@@ -285,10 +299,13 @@ public class DataManager extends DataManagerAbstract {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+        }finally {
+            logger.info("Bulk-Updated " +claims.size() + " Claims");
         }
     }
 
     public void deleteClaim(Claim claim) {
+        logger.info("Delete Claim '" +claim.getName() + "'");
         this.runAsync(() ->  {
             try (Connection connection = this.databaseConnector.getConnection()){
                 String deleteClaim = "DELETE FROM " + this.getTablePrefix() + "claim WHERE id = ?";

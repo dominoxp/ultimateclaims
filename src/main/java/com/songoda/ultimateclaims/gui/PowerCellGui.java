@@ -1,5 +1,9 @@
 package com.songoda.ultimateclaims.gui;
 
+import static com.songoda.core.utils.NumberUtils.formatWithSuffix;
+import static com.songoda.ultimateclaims.settings.Settings.ENABLE_FUEL;
+import static org.bukkit.ChatColor.BLACK;
+
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.gui.CustomizableGui;
 import com.songoda.core.gui.GuiUtils;
@@ -9,23 +13,17 @@ import com.songoda.core.utils.NumberUtils;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.core.utils.TimeUtils;
 import com.songoda.ultimateclaims.UltimateClaims;
-import com.songoda.ultimateclaims.claim.Audit;
 import com.songoda.ultimateclaims.claim.Claim;
 import com.songoda.ultimateclaims.claim.PowerCell;
 import com.songoda.ultimateclaims.member.ClaimMember;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
-import org.bukkit.Bukkit;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PowerCellGui extends CustomizableGui {
     private final UltimateClaims plugin;
@@ -59,17 +57,17 @@ public class PowerCellGui extends CustomizableGui {
         mirrorFill("mirrorfill_2", 1, 0, true, true, glass2);
         mirrorFill("mirrorfill_3", 0, 1, true, true, glass2);
 
-        if (Settings.ENABLE_FUEL.getBoolean()) {
+        if (ENABLE_FUEL.getBoolean()) {
             // buttons and icons at the top of the screen
             // Add/Display economy amount
             this.setButton("economy", 0, 2, CompatibleMaterial.SUNFLOWER.getItem(),
-                    (event) -> {
-                        if (event.clickType == ClickType.LEFT) {
-                            addEcon(event.player);
-                        } else if (event.clickType == ClickType.RIGHT) {
-                            takeEcon(event.player);
-                        }
-                    });
+                (event) -> {
+                    if (event.clickType == ClickType.LEFT) {
+                        addEcon(event.player);
+                    } else if (event.clickType == ClickType.RIGHT) {
+                        takeEcon(event.player);
+                    }
+                });
 
             // Display the total time
             this.setItem("time", 0, 4, CompatibleMaterial.CLOCK.getItem());
@@ -185,27 +183,33 @@ public class PowerCellGui extends CustomizableGui {
         lastUpdate = now;
 
         // Economy amount
+        /*
         if (Settings.ENABLE_FUEL.getBoolean())
             this.updateItem("economy", 0, 2,
                     plugin.getLocale().getMessage("interface.powercell.economytitle")
-                            .processPlaceholder("time", TimeUtils.makeReadable((long) powercell.getEconomyPower() * 60 * 1000))
+                            .processPlaceholder("time", formatWithSuffix((long) powercell.getEconomyPower()))
                             .processPlaceholder("balance", powercell.getEconomyBalance()).getMessage(),
                     plugin.getLocale().getMessage("interface.powercell.economylore")
-                            .processPlaceholder("balance", powercell.getEconomyBalance()).getMessage().split("\\|"));
+                            .processPlaceholder("balance", powercell.getEconomyBalance()).getMessage().split("\\|"));*/
 
         // Display the total time
-        if (Settings.ENABLE_FUEL.getBoolean())
+        if (ENABLE_FUEL.getBoolean()) {
             this.updateItem("time", 0, 4,
-                    plugin.getLocale().getMessage("interface.powercell.totaltitle")
-                            .processPlaceholder("time", TimeUtils.makeReadable((long) powercell.getTotalPower() * 60 * 1000)).getMessage(),
-                    ChatColor.BLACK.toString());
+                plugin.getLocale().getMessage("interface.powercell.totaltitle")
+                    .processPlaceholder("power", formatWithSuffix(powercell.getTotalPower()))
+                    .getMessage(),
+                BLACK.toString());
+        }
 
         // Display the item amount
-        if (Settings.ENABLE_FUEL.getBoolean())
+        if (ENABLE_FUEL.getBoolean()) {
             this.updateItem("item", 0, 6,
-                    plugin.getLocale().getMessage("interface.powercell.valuablestitle")
-                            .processPlaceholder("time", TimeUtils.makeReadable((long) powercell.getItemPower() * 60 * 1000)).getMessage(),
-                    ChatColor.BLACK.toString());
+                plugin.getLocale().getMessage("interface.powercell.valuablestitle")
+                    .processPlaceholder("power",
+                        formatWithSuffix(powercell.getItemPower()))
+                    .getMessage(),
+                BLACK.toString());
+        }
 
         // buttons at the bottom of the screen
         // Claim info

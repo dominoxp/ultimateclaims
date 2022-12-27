@@ -7,6 +7,8 @@ import com.songoda.ultimateclaims.claim.PowerCell;
 import com.songoda.ultimateclaims.member.ClaimMember;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -19,8 +21,11 @@ public class PowerCellTask extends BukkitRunnable {
     private static PowerCellTask instance;
     private static UltimateClaims plugin;
 
+    private final Logger logger;
+
     public PowerCellTask(UltimateClaims plug) {
         plugin = plug;
+        logger = Bukkit.getLogger();
     }
 
     public static PowerCellTask startTask(UltimateClaims plug) {
@@ -35,6 +40,18 @@ public class PowerCellTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        long start  = System.currentTimeMillis();
+        try {
+            runInternalTask();
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }finally {
+            logger.info("Powercell Task took " + (System.currentTimeMillis() - start) + " ms to process");
+        }
+    }
+
+    private void runInternalTask(){
         for (Claim claim : new ArrayList<>(plugin.getClaimManager().getRegisteredClaims())) {
             PowerCell powerCell = claim.getPowerCell();
             List<ClaimMember> members = claim.getOwnerAndMembers().stream()

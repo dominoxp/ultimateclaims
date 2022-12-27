@@ -13,6 +13,7 @@ import com.songoda.ultimateclaims.member.ClaimMember;
 import com.songoda.ultimateclaims.member.ClaimPerm;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.List;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -21,11 +22,17 @@ import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPistonEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 public class BlockListeners implements Listener {
 
@@ -114,7 +121,8 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD))) {
+        if (claim == null ? isModeratedWorld(event.getBlock())
+            : !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD)) {
             event.setCancelled(true);
         }
     }
@@ -124,11 +132,13 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD))) {
+        if (claim == null ? isModeratedWorld(event.getBlock())
+            : !claim.getClaimSettings().isEnabled(ClaimSetting.FIRE_SPREAD)) {
             if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11)) {
                 event.getIgnitingBlock().setType(CompatibleMaterial.AIR.getMaterial());
             } else {
-                for (BlockFace bf : new BlockFace[] {BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST}) {
+                for (BlockFace bf : new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH,
+                    BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST}) {
                     Block b = event.getBlock().getRelative(bf);
                     if (b != null && b.getType() == CompatibleMaterial.FIRE.getMaterial()) {
                         b.setType(CompatibleMaterial.AIR.getMaterial());
@@ -144,7 +154,7 @@ public class BlockListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
 
         Claim claim = claimManager.getClaim(event.getBlock().getChunk());
-        if (isModeratedWorld(event.getBlock()) || (claim != null && !claim.getClaimSettings().isEnabled(ClaimSetting.LEAF_DECAY))) {
+        if (claim == null ? isModeratedWorld(event.getBlock()): !claim.getClaimSettings().isEnabled(ClaimSetting.LEAF_DECAY)) {
             event.setCancelled(true);
         }
     }

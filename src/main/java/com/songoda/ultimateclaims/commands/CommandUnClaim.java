@@ -10,12 +10,11 @@ import com.songoda.ultimateclaims.claim.region.ClaimedChunk;
 import com.songoda.ultimateclaims.member.ClaimMember;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 public class CommandUnClaim extends AbstractCommand {
 
@@ -78,18 +77,23 @@ public class CommandUnClaim extends AbstractCommand {
 
         // Remove chunk from claim
         ClaimedChunk removedChunk = claim.removeClaimedChunk(chunk, player);
+        if (claim.getPowerCell() != null) {
+            claim.getPowerCell().addCurrentPower(claim.getClaimRefund());
+        }
 
-        if (plugin.getDynmapManager() != null)
+        if (plugin.getDynmapManager() != null) {
             plugin.getDynmapManager().refresh();
+        }
 
         if (claim.getClaimSize() == 0) {
             plugin.getLocale().getMessage("general.claim.dissolve")
-                    .processPlaceholder("claim", claim.getName())
-                    .sendPrefixedMessage(player);
+                .processPlaceholder("claim", claim.getName())
+                .sendPrefixedMessage(player);
 
             claim.destroy(ClaimDeleteReason.PLAYER);
         } else {
             plugin.getDataManager().deleteClaimedChunk(removedChunk);
+            plugin.getDataManager().updateClaim(claim);
 
             plugin.getLocale().getMessage("command.unclaim.success").sendPrefixedMessage(sender);
         }

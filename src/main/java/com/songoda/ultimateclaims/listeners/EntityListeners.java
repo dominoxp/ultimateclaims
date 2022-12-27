@@ -13,10 +13,19 @@ import com.songoda.ultimateclaims.member.ClaimPerm;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
 import com.songoda.ultimateclaims.tasks.VisualizeTask;
+import java.util.ArrayList;
+import java.util.Objects;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -26,14 +35,16 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.material.Dispenser;
 import org.bukkit.projectiles.ProjectileSource;
-
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class EntityListeners implements Listener {
 
@@ -98,7 +109,7 @@ public class EntityListeners implements Listener {
 
         if (claimManager.hasClaim(event.getLocation().getChunk())) {
             Claim claim = claimManager.getClaim(event.getLocation().getChunk());
-            if (!claim.getClaimSettings().isEnabled(ClaimSetting.HOSTILE_MOB_SPAWNING) && event.getEntity() instanceof Monster) {
+            if (!claim.getClaimSettings().isEnabled(ClaimSetting.HOSTILE_MOB_SPAWNING) && isHostile(event.getEntity())) {
                 event.setCancelled(true);
             }
         }
@@ -207,16 +218,15 @@ public class EntityListeners implements Listener {
         }
 
         if (source instanceof Player && isModeratedWorld(event.getDamager().getWorld().getName())) {
-            Player player = (Player)source;
+            Player player = (Player) source;
 
-            if(event.getEntity() instanceof Player){
-                if(!player.hasPermission("ultimateclaims.world_protection.pvp")){
+            if (event.getEntity() instanceof Player) {
+                if (!player.hasPermission("ultimateclaims.world_protection.pvp")) {
                     event.setCancelled(true);
                 }
-            }else {
-                if(!player.hasPermission("ultimateclaims.world_protection.mobkill")){
-                    event.setCancelled(true);
-                }
+            } else if (!(isHostile(event.getEntity())) && !player.hasPermission(
+                "ultimateclaims.world_protection.mobkill")) {
+                event.setCancelled(true);
             }
         }
     }
@@ -292,6 +302,10 @@ public class EntityListeners implements Listener {
         ClaimManager claimManager = plugin.getClaimManager();
         // todo? setting to allow/disallow these in a claim?
         event.blockList().removeIf(block -> claimManager.hasClaim(block.getChunk()));
+    }
+
+    private boolean isHostile(Entity entity){
+        return entity instanceof Monster || entity instanceof Slime;
     }
 
     private boolean playerMove(Location fromLocation, Location toLocation, Player player) {

@@ -1,5 +1,8 @@
 package com.songoda.ultimateclaims.claim;
 
+import static com.songoda.ultimateclaims.settings.Settings.COST_CLAIM_LINEAR_VALUE;
+import static com.songoda.ultimateclaims.settings.Settings.UNCLAIM_REFUND_PERCENTAGE;
+
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.compatibility.ServerVersion;
@@ -16,6 +19,14 @@ import com.songoda.ultimateclaims.member.ClaimPerm;
 import com.songoda.ultimateclaims.member.ClaimPermissions;
 import com.songoda.ultimateclaims.member.ClaimRole;
 import com.songoda.ultimateclaims.settings.Settings;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -27,15 +38,6 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 
 public class Claim {
 
@@ -322,23 +324,37 @@ public class Claim {
     }
 
     public ClaimedChunk getClaimedChunk(Chunk chunk) {
-        for (ClaimedChunk claimedChunk : getClaimedChunks())
-            if (claimedChunk.equals(chunk))
+        for (ClaimedChunk claimedChunk : getClaimedChunks()) {
+            if (claimedChunk.equals(chunk)) {
                 return claimedChunk;
+            }
+        }
         return null;
     }
 
     public int getClaimSize() {
-        return claimedRegions.stream().map(r -> r.getChunks().size()).mapToInt(Integer::intValue).sum();
+        return claimedRegions.stream().map(r -> r.getChunks().size()).mapToInt(Integer::intValue)
+            .sum();
+    }
+
+    public int getNextClaimCost() {
+        return (int) (getClaimSize() * COST_CLAIM_LINEAR_VALUE.getDouble());
+    }
+
+    public int getClaimRefund() {
+        return (int) (Math.max(0, getClaimSize() - 1) * COST_CLAIM_LINEAR_VALUE.getDouble() * (
+            UNCLAIM_REFUND_PERCENTAGE.getDouble() / 100.0));
     }
 
     public int getMaxClaimSize(Player player) {
-        return PlayerUtils.getNumberFromPermission(player, "ultimateclaims.maxclaims", Settings.MAX_CHUNKS.getInt());
+        return PlayerUtils.getNumberFromPermission(player, "ultimateclaims.maxclaims",
+            Settings.MAX_CHUNKS.getInt());
     }
 
     public void animateChunk(Chunk chunk, Player player, Material material) {
-        if (!Settings.ENABLE_CHUNK_ANIMATION.getBoolean())
+        if (!Settings.ENABLE_CHUNK_ANIMATION.getBoolean()) {
             return;
+        }
 
         int bx = chunk.getX() << 4;
         int bz = chunk.getZ() << 4;
