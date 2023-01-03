@@ -401,7 +401,7 @@ public class Claim {
                 xArr[1] = cX + 16;
                 zArr[1] = cZ + 16;
 
-                regionCorners.addCorners(new ClaimCorners(cChunk.getChunk(), xArr, zArr));
+                regionCorners.addCorners(new ClaimCorners(cChunk, xArr, zArr));
             }
             result.add(regionCorners);
         }

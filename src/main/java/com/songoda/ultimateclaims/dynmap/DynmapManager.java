@@ -51,9 +51,9 @@ public class DynmapManager {
                 if (c.getCorners() != null) {
                     for (RegionCorners r : new HashSet<>(c.getCorners())) {
                         for (ClaimCorners cc : r.getClaimCorners()) {
-                            if (markerSet.findAreaMarker(c.getId() + ":" + cc.chunkID) == null) {
-                                markerSet.createAreaMarker(c.getId() + ":" + cc.chunkID, "Claim #" + c.getId(),
-                                        false, c.getFirstClaimedChunk().getWorld(), cc.x, cc.z, false);
+                            if (markerSet.findAreaMarker(c.getId() + ":" + cc.getChunkID()) == null) {
+                                markerSet.createAreaMarker(c.getId() + ":" + cc.getChunkID(), "Claim #" + c.getId(),
+                                        false, c.getFirstClaimedChunk().getWorld(), cc.getX(), cc.getZ(), false);
                             }
 
                             refreshDescription(c);

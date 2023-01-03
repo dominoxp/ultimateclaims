@@ -2,10 +2,7 @@ package com.songoda.ultimateclaims.claim.region;
 
 import com.songoda.ultimateclaims.UltimateClaims;
 import com.songoda.ultimateclaims.claim.Claim;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +24,6 @@ public class ClaimedChunk {
         this.x = x;
         this.z = z;
     }
-
-    public Chunk getChunk() {
-        World world = Bukkit.getWorld(this.world);
-        if (world == null)
-            return null;
-        return world.getChunkAt(this.x, this.z);
-    }
-
     public String getWorld() {
         return world;
     }
@@ -80,10 +69,6 @@ public class ClaimedChunk {
                 UltimateClaims.getInstance().getDataManager().updateClaimedChunks(region.getChunks());
             }
         }
-    }
-
-    public Block getCenter() {
-        return this.getChunk().getBlock(8, 0, 8);
     }
 
     public ClaimedRegion getAttachedRegion(Claim claim) {

@@ -123,9 +123,9 @@ public class DataManager extends DataManagerAbstract {
                 try (PreparedStatement statement = connection.prepareStatement(createChunk)) {
                     statement.setInt(1, claimId);
                     statement.setString(2, chunk.getRegion().getUniqueId().toString());
-                    statement.setString(3, chunk.getChunk().getWorld().getName());
-                    statement.setInt(4, chunk.getChunk().getX());
-                    statement.setInt(5, chunk.getChunk().getZ());
+                    statement.setString(3, chunk.getWorld());
+                    statement.setInt(4, chunk.getX());
+                    statement.setInt(5, chunk.getZ());
                     statement.executeUpdate();
                 }
 
